@@ -1,0 +1,111 @@
+.tab-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-bottom: 0.8rem;
+
+  // 头部
+  .header-tab {
+    margin: 0 0.4rem 0.4rem 0.4rem;
+
+    .line-wrap {
+      display: flex;
+      margin-bottom: 0.8rem;
+      &:last-child {
+        margin-bottom: 0;
+      }
+      > * {
+        margin-right: 0.5rem;
+        &:last-child {
+          margin-right: 0;
+        }
+      }
+      .ipt-wrap {
+        flex: 1.5;
+      }
+      .other-wrap {
+        display: flex;
+        flex: 1;
+        > * {
+          margin-right: 0.5rem;
+          &:last-child {
+            margin-right: 0;
+          }
+        }
+        .classify-wrap {
+          flex: 5.5 1 0;
+          margin: 0 0.5rem;
+        }
+        .new-wrap {
+          flex: 4 1 0;
+        }
+      }
+    }
+  }
+
+  // 列表
+  .list-tab {
+    flex: 1;
+    background-color: #fff;
+    padding: 0.8rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    .item-list {
+      width: 8.2rem;
+      height: 8.2rem;
+      border-radius: 0.3rem;
+      cursor: pointer;
+      margin-right: 0.3rem;
+      margin-bottom: 0.3rem;
+      border: 0.2rem solid transparent;
+      position: relative;
+
+      &:hover {
+        border-color: var(--fn-primary-color);
+      }
+    }
+    .active {
+      border-color: var(--fn-primary-color);
+    }
+  }
+
+  // 分页
+  .footer-tab {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 1rem;
+  }
+}
+
+// 搜索框的样式
+:deep(.el-input-group--append) {
+  position: relative;
+
+  .el-input__inner {
+    width: 100%;
+    padding-right: 3.3rem;
+    border-top-right-radius: 0.4rem;
+    border-bottom-right-radius: 0.4rem;
+  }
+
+  .el-input-group__append {
+    position: absolute;
+    right: 1.1rem;
+    top: 0.7rem;
+    border: none;
+    background-color: transparent;
+    padding: 0;
+
+    .el-button {
+      padding: 0.9rem !important;
+    }
+  }
+}
+// 分类-级联高度
+.pc-sel-area-cascader {
+  .el-cascader-menu__wrap {
+    height: 350px !important;
+  }
+}

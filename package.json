@@ -1,0 +1,38 @@
+{
+  "name": "design-demo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "@tweenjs/tween.js": "^21.0.0",
+    "axios": "^1.6.8",
+    "cookie": "^0.6.0",
+    "core-js": "^3.8.3",
+    "crypto-js": "^4.2.0",
+    "element-ui": "^2.15.7",
+    "js-cookie": "^3.0.5",
+    "jszip": "^3.10.1",
+    "konva": "^9.3.0",
+    "lodash": "^4.17.21",
+    "mitt": "^3.0.1",
+    "moment": "^2.29.1",
+    "pinia": "^2.1.7",
+    "prettier": "^1.19.1",
+    "three": "^0.153.0",
+    "three-mesh-bvh": "^0.6.8",
+    "vue": "2.7.0",
+    "vue-color": "^2.8.1",
+    "vue-router": "^3.5.1"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-plugin-router": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "less": "^4.0.0",
+    "less-loader": "^8.0.0",
+    "vue-template-compiler": "^2.6.14"
+  }
+}

@@ -1,0 +1,57 @@
+/*弹窗样式*/
+.el-dialog{
+    border-radius: 1.8rem;
+}
+
+/*头部*/
+.el-dialog__header{
+    height: 6rem;
+    background: #EEEEEE;
+    display: flex;
+    align-items: center;
+    padding: 1.8rem 1.8rem 1.8rem 2.4rem ;
+    font-size: 1.8rem;
+    border-radius: 1.8rem 1.8rem 0 0;
+}
+
+/*关闭按钮*/
+.el-dialog__headerbtn{
+    width: 2.4rem;
+    height: 2.4rem;
+    position: absolute;
+    top: 1.8rem;
+    right: 1.8rem;
+    background: #b2b2b2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/*关闭按钮颜色*/
+.el-dialog__headerbtn .el-dialog__close{
+    color: #ffffff;
+}
+
+/*内容*/
+.el-dialog__body{
+    padding: 2.8rem;
+
+    .el-input--small .el-input__inner{
+        /*background: #FCFCFE;*/
+    }
+}
+
+/*底部*/
+.el-dialog__footer{
+    height: 10.9rem;
+    padding: 2.9rem 2.8rem 3rem 0;
+    border-top: 0.1rem solid #E1E1E1;
+}
+
+/*底部-按钮样式*/
+.el-dialog__footer .el-button--small{
+    padding: 1.5rem 5.6rem;
+    height: 5rem !important;
+    border-radius: 0.8rem;
+}
