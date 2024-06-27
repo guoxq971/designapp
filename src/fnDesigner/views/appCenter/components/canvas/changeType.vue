@@ -60,6 +60,9 @@ const disabledRefine = computed(() => !da.value.templateList.some((e) => e.type 
 
 // 切换
 function onSwitch(type) {
+  if (da.value.activeTemplateType === type) {
+    return;
+  }
   da.value.useTemplateBySize(type);
   da.value.activeTemplateType = type;
 }

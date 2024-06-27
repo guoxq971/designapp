@@ -76,7 +76,38 @@ export class View {
   }
 
   /**
+   * 应用休眠设计信息
+   * @param {DesignInfo[]} designData
+   */
+  setDormancyDesignData(designData) {
+    designData.forEach((data) => {
+      switch (data.type) {
+        case DESIGN_TYPE.text:
+          this.addDesignText(data.param, data.attrs);
+          break;
+        case DESIGN_TYPE.image:
+          this.addDesignImage(data.detail, data.attrs).then((design) => {
+            if (data.isTile) {
+              design.tileClass?.setParam(data.tile, true);
+              setTimeout(() => {
+                design.tile(true);
+              });
+            }
+          });
+          break;
+        case DESIGN_TYPE.backgroundImage:
+          this.addDesignBackgroundImage(data.detail, data.attrs);
+          break;
+        case DESIGN_TYPE.backgroundColor:
+          this.addDesignBackgroundColor(data.colorCode, data.attrs);
+          break;
+      }
+    });
+  }
+
+  /**
    * 获取设计信息
+   * @returns {DesignInfo[]} 设计列表
    */
   getDesignData() {
     return this.designList.map((design) => {
@@ -86,14 +117,16 @@ export class View {
         rotation: design.node.attrs.rotation,
         scaleX: design.node.attrs.scaleX,
         scaleY: design.node.attrs.scaleY,
+        visible: design.node.attrs.visible,
       };
       return {
         type: design.type,
-        detail: design.detail,
-        param: design.param,
-        colorCode: design.colorCode,
-        tile: design.tileClass?.getParam(),
-        attrs,
+        detail: design.detail, //设计图详情
+        param: design.param, //文字参数
+        colorCode: design.colorCode, //背景色
+        tile: design.tileClass?.getParam(), //平铺参数
+        isTile: Boolean(design.tileClass?.node), //是否平铺
+        attrs, //设计基础参数
       };
     });
   }
@@ -104,7 +137,7 @@ export class View {
    */
   updateMesh(opt = {}) {
     opt = Object.assign({ multi: true }, opt);
-    const meshItem = this.$template.template3d.meshList.find((e) => e.viewId == this.id);
+    const meshItem = this.$template.template3d?.meshList?.find((e) => e.viewId == this.id);
     if (meshItem) {
       setTimeout(() => {
         // 更新中间画布
@@ -333,6 +366,7 @@ export class View {
       container,
       viewInfo: this.getInfo(),
       $app: this.$app,
+      $template: this.$template,
       $view: this,
     });
   }
@@ -473,6 +507,18 @@ export class View {
   }
 
   /**
+   * 销毁
+   */
+  destroy() {
+    this.destroyCanvas();
+    this.designList.forEach((item) => {
+      item.destroy();
+      item = null;
+    });
+    this.designList = [];
+  }
+
+  /**
    * 销毁canvas
    */
   destroyCanvas() {
@@ -520,6 +566,18 @@ export class View {
     const printout = templateDetail.pointoutPrintAreas.find((e) => e.defaultView.id === viewId);
     const view = templateDetail.views.find((e) => e.id === viewId);
 
+    // 如果存在3d
+    let uvD;
+    let uvV;
+    let d_3d;
+    let d = print?.boundary?.soft?.content?.svg?.path?.d;
+    if (this.$template.template3d.isSureLoad3d) {
+      const config3dItem = this.$template.config3d.viewList?.find((e) => e.viewId == this.id);
+      d = config3dItem?.uvD;
+      d_3d = d;
+      uvD = config3dItem?.uvD;
+      uvV = config3dItem?.uvV;
+    }
     return {
       width: print?.boundary?.size?.width,
       height: print?.boundary?.size?.height,
@@ -534,15 +592,14 @@ export class View {
         height: printout?.size.height,
       },
       print: {
-        d: print?.boundary?.soft?.content?.svg?.path?.d,
+        d: d,
         width: print?.boundary?.size?.width,
         height: print?.boundary?.size?.height,
-        d_3d: null,
+        d_3d: d_3d,
         d_2d: print?.boundary?.soft?.content?.svg?.path?.d,
       },
-      //   if (this.isNeed3d) {
-      // d = this.config3d.viewList?.find((e) => e.viewId == this.view.id)?.uvD;
-      // d_3d = d;
+      uvD,
+      uvV,
     };
   }
 

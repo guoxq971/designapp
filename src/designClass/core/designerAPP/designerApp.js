@@ -1,14 +1,15 @@
 import { Template } from '@/designClass/core/template/template';
 import { ImageDetail } from '@/designClass/interface/interface';
-import { getTemplateConfig, getRefineSizeDetail, getRefineSizeConfig3d } from '@/designClass/util/template/gerTemplateConfig';
+import { getRefineSizeConfig3d, getRefineSizeDetail, getTemplateConfig } from '@/designClass/util/template/gerTemplateConfig';
 import { Message, MessageBox } from 'element-ui';
-import { GRequest, METHOD } from '@/utils/request';
+import { DRequest, GRequest, METHOD } from '@/utils/request';
 import { getUuid } from '@/utils/fnUtils';
 import { computed, ComputedRef } from 'vue';
 import { MODE_TYPE, TEMPLATE_DESIGN_TYPE, TRANSFORMER_TYPE } from '@/designClass/core/define';
 import { getImageId } from '@/designClass/util/design/image';
 import { View } from '@/designClass/core/view/view';
-
+import { getSubmitParam } from '@/designClass/util/template/multi';
+let messageInstance;
 /**
  * 设计器
  */
@@ -35,6 +36,8 @@ export class DesignerApp {
   /**@type {string} 监听模板刷新*/
   watchTemplateUuid = '1';
 
+  /**@type {boolean} 保存loading*/
+  saveLoading = false;
   /**@type {boolean} 模板加载loading*/
   loading = false;
   /**@type {boolean} 多角度加载loading*/
@@ -149,6 +152,7 @@ export class DesignerApp {
    * @param {TemplateDetail} detail
    * */
   async setTemplate(detail) {
+    // 获取上一个模板的设计
     const designDataList = this.activeTemplate?.getAllDesignData() || [];
 
     // 清空之前的缓存
@@ -257,6 +261,8 @@ export class DesignerApp {
       template.config3d = config3d;
       // 初始化视图列表
       template.initViewList();
+      // 初始化多角度
+      template.initMultiList();
     } finally {
       this.loading = false;
     }
@@ -275,11 +281,16 @@ export class DesignerApp {
       this.activeTemplateType = TEMPLATE_DESIGN_TYPE.common;
       return;
     }
+    //如果已存在已激活模板,清空3d数据,2d数据,保留设计数据
+    if (this.activeTemplate) {
+      this.activeTemplate.sleep();
+    }
+
     // 详情不存在,获取
     if (!template.detail) {
       await this.getTemplateDetailWithSize(template);
     }
-    // 配置不存在,获取
+    // 模板导出配置不存在,获取
     if (!template.templateExport.isRequest) {
       template.templateExport.getConfigApi();
     }
@@ -287,7 +298,6 @@ export class DesignerApp {
     // 加载2d
     setTimeout(() => {
       const doms = this.activeTemplate.viewList.map((view) => document.getElementById(this.canvas2dId + view.id));
-      this.activeTemplate.destroy();
       this.activeTemplate.createAllCanvas(doms);
       this.setModePreview();
     });
@@ -297,12 +307,19 @@ export class DesignerApp {
         this.activeTemplate.template3d.create3d(document.getElementById(this.canvas3dId), () => this.activeTemplate.createMulti3d());
       }
     });
+    // 加载多角度
+    setTimeout(() => {
+      this.activeTemplate.initMultiList();
+    });
     this.activeTemplateType = template.type;
     this.activeTemplate = template;
     this.activeTemplateId = template?.detail?.seqId;
     this.activeColorId = template?.detail.sizes[0].id;
     this.activeSizeId = template?.detail.appearances[0].id;
     this.activeViewId = template?.detail.views[0].id;
+
+    // 如果有休眠数据，就激活
+    template.activeSleep();
   }
 
   /**
@@ -417,6 +434,21 @@ export class DesignerApp {
   });
 
   /**
+   * 是否激活设计图
+   */
+  isActiveDesignMsg() {
+    if (!this.activeDesign) {
+      if (!messageInstance) {
+        messageInstance = Message.warning({
+          message: '请先选择设计图',
+          onClose: () => (messageInstance = null),
+        });
+      }
+      return Promise.reject('请先选择设计图');
+    }
+  }
+
+  /**
    * 当前激活的设计
    * @type {DesignItem|null}
    */
@@ -504,4 +536,138 @@ export class DesignerApp {
       return list.some((e) => e.seqId === id);
     };
   });
+
+  /**
+   * 保存产品
+   */
+  async saveProduct() {
+    // 精细
+    if (this.activeTemplateType === TEMPLATE_DESIGN_TYPE.refine) {
+      this.saveProductRefine();
+    }
+    // 通用
+    else {
+      this.saveProductCommon();
+    }
+  }
+
+  /**
+   * 精细产品保存
+   */
+  async saveProductRefine() {
+    try {
+      this.saveLoading = true;
+      const templateList = this.templateList.filter((e) => e.type === TEMPLATE_DESIGN_TYPE.refine && e.isDesign());
+      if (templateList.length === 0) {
+        Message.warning('设计不能为空');
+        return;
+      }
+      await this.refineTooltip();
+      const paramList = [];
+      for (let template of templateList) {
+        const param = await getSubmitParam(template);
+        param.productType.size = template.size;
+        param.productType.sizeType = template.sizeType;
+        paramList.push(param);
+      }
+
+      // 保存产品
+      const res = await DRequest(`/designer-web/CMProductWithSizeAct/saveProductWithSize.act`, METHOD.POST, paramList, { timeout: 3 * 60 * 1000 });
+      if (!res.data.status) {
+        Message.warning('保存产品失败');
+        return;
+      }
+      Message.success('保存成功');
+    } finally {
+      this.saveLoading = false;
+    }
+  }
+
+  /**
+   * 通用产品保存
+   * @returns {Promise<void>}
+   */
+  async saveProductCommon() {
+    try {
+      this.saveLoading = true;
+      const param = await getSubmitParam(this.activeTemplate);
+      // 上传3d设计-多角度
+      const multiPromise = this.activeTemplate?.multiList
+        .filter((item) => item.templateCamera3d)
+        .map((item) => {
+          return item.templateCamera3d.getDesignIdByNew(item.glb).then((designId) => {
+            return {
+              designId: designId,
+              multiId: item.multiId,
+              composeId: item.composeId,
+              sortNo: item.multiItem.sortno,
+              type: item.composeId ? 1 : 2, //1-简单 2-复杂
+            };
+          });
+        });
+
+      // 上传3d设计-导出
+      const exportPromise = this.activeTemplate.templateExport.configList.map((item) => {
+        return item.templateCamera3d.getDesignIdByNew(item.glbPath).then((designId) => {
+          return {
+            designId: designId,
+            multiId: '',
+            composeId: '',
+            sortNo: item.sortno,
+            type: 3, //模板导出
+          };
+        });
+      });
+      param.designParam3d = await Promise.all([...multiPromise, ...exportPromise]);
+
+      // 保存产品
+      const res = await DRequest(`/designer-web/CMProductAct/saveProduct.act`, METHOD.POST, param, { timeout: 3 * 60 * 1000 });
+      if (!res.data.status) {
+        Message.warning('保存产品失败');
+        return;
+      }
+      Message.success('保存成功');
+    } finally {
+      this.saveLoading = false;
+    }
+  }
+
+  /**
+   * 精细产品的设计提示
+   * @returns {Promise<void>}
+   */
+  async refineTooltip() {
+    // 获取精细设计中，有设计的尺码的产品数据 (激活的精细模板)
+    const templateList = this.templateList.filter((item) => item.type === TEMPLATE_DESIGN_TYPE.refine);
+
+    const temp = templateList[0];
+    const renderSpan = (viewList) => {
+      return viewList.map((e) => `<span style="color:red">【${e.name}】</span>`).join('、') + `<span style="color: red">未设计,</span>`;
+    };
+
+    await MessageBox.confirm(
+      `
+            <div>
+                <div>当前【精细设计】模式</div>
+                <div>该产品 ${templateList.length} 个尺码，各 ${temp?.viewList.length} 个设计面</div>
+                ${templateList
+                  .filter((e) => e.viewList.some((view) => view.designList.length === 0))
+                  .map((e) => {
+                    return `
+                    <div>
+                      ${e.size}：${e ? renderSpan(e.viewList.filter((e) => e.designList.length === 0)) : renderSpan(temp.viewList)}
+                    </div>`;
+                  })
+                  .join('')}
+                <div>是否继续保存?</div>
+            </div>
+      `,
+      '提示',
+      {
+        dangerouslyUseHTMLString: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      },
+    );
+  }
 }

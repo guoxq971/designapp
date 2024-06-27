@@ -26,9 +26,17 @@
           <el-dropdown-item @click.native="onOtherSetting">其他设置</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <div class="btn">a</div>
+      <div class="btn">
+        <historySvg />
+      </div>
       <div class="btn btn-big">保存模板</div>
-      <div class="btn btn-big primary">保存产品</div>
+      <el-popover placement="bottom" width="80" trigger="click" popper-class="pop-btn-group-save">
+        <el-button @click="onSaveProduct(SUBMIT_TYPE_SAVE_NUM_BTN.save)" :loading="$app.saveLoading" class="btn btn-big primary">保存产品</el-button>
+        <el-button @click="onSaveProduct(SUBMIT_TYPE_SAVE_NUM_BTN.color)" :loading="$app.saveLoading" :disabled="saveAllBtnDisabled" class="btn btn-big primary-2">全颜色合成</el-button>
+
+        <!--@click="onSaveProduct(SUBMIT_TYPE_SAVE_NUM_BTN.save)"-->
+        <el-button slot="reference" :loading="$app.saveLoading" class="btn btn-big primary">保存产品</el-button>
+      </el-popover>
     </div>
 
     <div class="btn-group big-group">
@@ -121,7 +129,7 @@
       <!--定位-->
       <div @click="onPosition" v-title="'定位'" class="btn btn-h-big multi">
         <corner />
-        <div>a</div>
+        <positionSvg />
       </div>
     </div>
 
@@ -146,6 +154,8 @@ import designList from '../../components/designList.vue';
 import multiCard from './components/multiCard.vue';
 import collectPop from '@/fnDesigner/components/collectPop.vue';
 import positionPop from '@/fnDesigner/components/positionPop/positionPop.vue';
+import positionSvg from '@/fnDesigner/components/svg/positionSvg.vue';
+import historySvg from '@/fnDesigner/components/svg/historySvg.vue';
 import clearSvg from '@/fnDesigner/components/svg/clearSvg.vue';
 import prevSvg from '@/fnDesigner/components/svg/prevSvg.vue';
 import remarkSvg from '@/fnDesigner/components/svg/remarkSvg.vue';
@@ -174,6 +184,7 @@ import { computed, ref } from 'vue';
 import { MessageBox } from 'element-ui';
 import hoverDesignDetail from '@/fnDesigner/components/hover-designDetail.vue';
 import { designStoreToRefs } from '@/designClass/store';
+import { SUBMIT_TYPE_SAVE_NUM_BTN } from '@/designClass/core/define';
 const $app = designStoreToRefs();
 
 const rightWidthUnit = ref(RIGHT_WIDTH_UNIT);
@@ -182,6 +193,9 @@ const rightWidthUnit = ref(RIGHT_WIDTH_UNIT);
 function onOtherSetting() {
   $app.value.otherSettingVisible = true;
 }
+
+// 全颜色合成
+const saveAllBtnDisabled = computed(() => !$app.value.activeTemplate || !$app.value.activeTemplate.detail?.isCanSynthesis);
 
 // 图层列表开关
 const designListVisibleName = computed(() => {
@@ -218,68 +232,91 @@ async function onClearAll() {
   $app.value.activeTemplate.clearAllDesign();
 }
 
+/**
+ * 保存产品
+ */
+function onSaveProduct(type) {
+  $app.value.saveProduct(type);
+}
+
+// 复制
+async function onCopy() {
+  await $app.value.isActiveDesignMsg();
+  $app.value.activeDesign?.copy();
+}
 // 置顶
-function onTop() {
+async function onTop() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.moveTop();
 }
 // 置底
-function onBottom() {
+async function onBottom() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.moveBottom();
 }
 // 上移
-function onUp() {
+async function onUp() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.moveUp();
 }
 // 下移
-function onDown() {
+async function onDown() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.moveDown();
 }
 // 删除
-function onRemove() {
+async function onRemove() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.remove();
 }
-// 复制
-function onCopy() {
-  $app.value.activeDesign?.copy();
-}
 // 水平居中
-function onCenterX() {
+async function onCenterX() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.centerHorizontal();
 }
 // 垂直居中
-function onCenterY() {
+async function onCenterY() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.centerVertical();
 }
 // 水平翻转
-function onFlipX() {
+async function onFlipX() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.flipHorizontal();
 }
 // 垂直翻转
-function onFlipY() {
+async function onFlipY() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.flipVertical();
 }
 // 放大
-function onScaleUp() {
+async function onScaleUp() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.scaleUp();
 }
 // 缩小
-function onScaleDown() {
+async function onScaleDown() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.scaleDown();
 }
 // 左旋转45
-function onRotateUp() {
+async function onRotateUp() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.rotateUp();
 }
 // 右旋转45
-function onScRotateDown() {
+async function onScRotateDown() {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.rotateDown();
 }
 // 最大化
-function onMax(type) {
+async function onMax(type) {
+  await $app.value.isActiveDesignMsg();
   $app.value.activeDesign?.max(type);
 }
 // 平铺
-function onTile() {
+async function onTile() {
+  // await $app.value.isActiveDesignMsg();
   // $app.value.activeDesign?.tile();
 }
 // 定位
@@ -294,6 +331,7 @@ function onPosition() {
   left: 127.2rem !important;
   top: 7rem !important;
 }
+
 .pop-btn-group {
   padding: 0 !important;
   @btnSize: 4.8rem;
@@ -335,6 +373,49 @@ function onPosition() {
         color: var(--fn-primary-color);
       }
     }
+  }
+
+  .primary {
+    border-color: var(--fn-primary-color);
+    background-color: var(--fn-primary-color);
+    color: #fff;
+    &:hover {
+      color: #fff;
+      background-color: #fd894d;
+    }
+  }
+
+  .primary-2 {
+    border-color: #f3d19e;
+    background-color: #f3d19e;
+    color: #fff;
+    &:hover {
+      border-color: #f3d19e;
+      color: #fff;
+      background-color: rgba(243, 209, 158, 0.8);
+    }
+  }
+
+  .btn-big {
+    font-size: 1.2rem;
+    width: 7.2rem;
+    letter-spacing: 0.1rem;
+  }
+}
+.pop-btn-group-save {
+  .pop-btn-group();
+  padding: 0 !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100px;
+  padding-top: 10px !important;
+  min-width: 130px !important;
+  .btn {
+    width: 100px !important;
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    margin-bottom: 7px;
   }
 }
 </style>

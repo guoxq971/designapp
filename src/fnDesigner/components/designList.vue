@@ -1,7 +1,9 @@
 <template>
   <el-collapse-transition>
-    {{ imageList }}
     <div v-if="imageList && imageList.length">
+      <!--图层编辑-->
+      <imageEditDialog v-if="imageEdit.show" :show.sync="imageEdit.show" :seqId="imageEdit.seqId" />
+
       <div class="design-group" style="overflow: auto;">
         <div class="design-wrap" v-for="(item, index) in imageList" :key="index" :class="{ active: isActive(item), 'design-disabled': isFixedDesign(item) }">
           <div class="wrap">
@@ -70,13 +72,9 @@
               <deleteSvg />
             </div>
             <!--图层-显示隐藏-->
-            <div class="layer-btn" v-title="'图层显示隐藏'" @click="onLayerVisible(item)">
-              <template v-if="item.attrs.visible">
-                <showSvg />
-              </template>
-              <template v-else>
-                <hideSvg />
-              </template>
+            <div class="layer-btn" v-title="'图层显示隐藏'" @click="onLayerVisible(item)" :key="testUid">
+              <showSvg v-show="item.attrs.visible" />
+              <hideSvg v-show="!item.attrs.visible" />
             </div>
 
             <!--锁定-->
@@ -86,9 +84,6 @@
           </div>
         </div>
       </div>
-
-      <!--图层编辑-->
-      <!--<imageEditDialog ref="imageEditDialog" />-->
     </div>
   </el-collapse-transition>
 </template>
@@ -100,6 +95,7 @@ export default {
 };
 </script>
 <script setup>
+import imageEditDialog from '@/fnDesigner/components/imageEditDialog.vue';
 import collectSvg from '@/fnDesigner/components/svg/collectSvg.vue';
 import deleteSvg from '@/fnDesigner/components/svg/deleteSvg.vue';
 import upSvg from '@/fnDesigner/components/svg/upSvg.vue';
@@ -107,11 +103,12 @@ import downSvg from '@/fnDesigner/components/svg/downSvg.vue';
 import showSvg from '@/fnDesigner/components/svg/showSvg.vue';
 import hideSvg from '@/fnDesigner/components/svg/hideSvg.vue';
 import editSvg from '@/fnDesigner/components/svg/editSvg.vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import textSvg from '@/fnDesigner/components/textSvg.vue';
 
 import { designStoreToRefs } from '@/designClass/store';
 import { DESIGN_TYPE } from '@/designClass/core/define';
+import { getUuid } from '@/utils/fnUtils';
 const $app = designStoreToRefs();
 
 const imageList = computed(() => $app.value.activeCanvasDesignList);
@@ -142,7 +139,14 @@ function onSetActiveImage(item) {
 }
 
 //编辑
-function onEdit(item) {}
+const imageEdit = ref({
+  show: false,
+  seqId: '',
+});
+function onEdit(item) {
+  imageEdit.value.show = true;
+  imageEdit.value.seqId = item.attrs.detail.id;
+}
 
 // 收藏
 function onImageCollect(item) {
@@ -162,8 +166,10 @@ function onLayerDel(item) {
   item.attrs.$design.remove();
 }
 // 图层显示隐藏
+const testUid = ref('1');
 function onLayerVisible(item) {
   item.attrs.$design.visible();
+  testUid.value = getUuid();
 }
 </script>
 

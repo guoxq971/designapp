@@ -52,8 +52,8 @@ export class Tile {
   /**
    * 设置参数
    */
-  setParam(param) {
-    if (this.node) {
+  setParam(param, force = false) {
+    if (this.node || force) {
       this.gapX = param.gapX;
       this.gapY = param.gapY;
       this.offset = param.offset;

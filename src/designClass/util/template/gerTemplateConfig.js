@@ -18,8 +18,10 @@ export async function getTemplateConfig(templateNo) {
 // 获取精细尺码的详情
 export async function getRefineSizeDetail(templateNo, size) {
   const res = await GRequest(`/base-web/CMProductTemplateAct/selectTemplateList4DesignWithSize.act`, METHOD.POST, { templateNo, size });
-  if (res.data.code !== 0) return;
-  const detail = res.data.data;
+  // if (res.data.code !== 0) return;
+  // const detail = res.data.data;
+  if (res.data?.retState === '1') return Promise.reject('获取精细尺码的详情失败');
+  const detail = res.data;
   // console.log('获取精细尺码的详情', detail);
 
   return detail;

@@ -1,7 +1,17 @@
 <template>
   <div style="position: relative">
     <!--渲染按钮-->
-    <el-button v-if="$app.activeTemplate" style="position: absolute; top: .5rem; left: .5rem; z-index: 3;" type="primary" size="mini" @click="onRender" :loading="$app.loadingMulti">渲染</el-button>
+    <el-button
+      v-if="$app.activeTemplate"
+      style="position: absolute; top: .8rem; left: .8rem; z-index: 3;"
+      type="primary"
+      size="mini"
+      @click="onRender"
+      :loading="$app.loadingMulti"
+      class="btn primary"
+    >
+      渲染
+    </el-button>
     <el-carousel style="width: 100%" :interval="50000" :autoplay="false" :loop="false" arrow="always" ref="carousel" indicator-position="outside">
       <template v-if="$app.activeTemplate">
         <el-carousel-item v-for="item in $app.activeTemplate.multiList" :key="item.id" @click.native="onClick(item)">
@@ -30,8 +40,6 @@
 <script setup>
 import { RIGHT_WIDTH_UNIT } from '@/fnDesigner/config/common';
 import glbItem from './glbItem.vue';
-import { computed } from 'vue';
-import { complexMultiDispose, findMultiDesignImg } from '@/fnDesigner/js/multi';
 import multiAngleFold from './multiAngleFold.vue';
 import { ref } from 'vue';
 import { designStoreToRefs } from '@/designClass/store';
@@ -49,6 +57,7 @@ function onClick(item) {}
 </script>
 
 <style scoped lang="less">
+@import url('/src/fnDesigner/css/btn.less');
 /*多角度-start*/
 @padding: v-bind(multiBoxPadding);
 :deep(.el-carousel) {

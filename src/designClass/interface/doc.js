@@ -7,6 +7,7 @@
  * @prop {string} bgImg 背景图
  * @prop {string|null} prodImg 产品图
  * @prop {string|null} designImg 渲染图
+ * @prop {MultiItem} multiItem 多角度item
  * @prop {string} glb 3d模型路径 - 有值则为3d
  * @prop {string} glbContainerId 3d模型的容器id - 有值则为3d
  * @prop {boolean} loading 3d - 有值则为3d
@@ -85,6 +86,7 @@
  * @prop {string} id 模板id
  * @prop {number} isHotStamping 是否烫印
  * @prop {string} emptyCopy 是否对面设计
+ * @prop {boolean} isCanSynthesis 是否能全颜色合成
  */
 
 /**
@@ -153,4 +155,52 @@
  // * @prop {string} updateTime: "2024-06-11 08:39:19",
  // * @prop {string} createUser: "de5f04fe-df6c-4fba-b463-53291d7e6dcf_11",
  // * @prop {string} createTime: "2024-06-11 16:38:36",
+ */
+
+/**
+ * 设计信息
+ * @typedef DesignInfo
+ * @prop {x:number,y:number,rotation:number,scaleX:number,scaleY:number,visible:boolean} attrs 设计基础参数
+ * @prop {ImageDetail} detail 设计图详情
+ * @prop {TextParam} param 文字参数
+ * @prop {string} colorCode 背景色
+ * @prop {gapX:number,gapY:number,offset:number,offsetType:TILE_TYPE_OFFSET,mirrorType:TILE_TYPE_MIRROR} tile 平铺参数
+ * @prop {boolean} isTile 是否平铺
+ * @prop {DESIGN_TYPE} type 设计类型
+ */
+
+/**
+ * 视图信息
+ * @typedef ViewInfo
+ * @prop {string} id 视图id
+ * @prop {DesignInfo[]} designInfoList 设计列表
+ */
+
+/**
+ * 模板休眠数据
+ * @typedef templateDormancyData
+ * @prop {ViewInfo[]} viewInfoList 视图信息列表
+ */
+
+/**
+ * @typedef Config3dViewItem
+ * @prop {string} seqId "1800443745741578241",
+ * @prop {string} templateId "78c648bf-5ab5-4ab9-9532-5eb38771de55",
+ * @prop {string} templateNo "2435",
+ * @prop {string} viewId 2,
+ * @prop {string} viewRelation null,
+ * @prop {string} viewName "2",
+ * @prop {string} materialName "front_right",
+ * @prop {string} uvD "1",
+ * @prop {string} uvV "1",
+ * @prop {string} useflag 0,
+ * @prop {string} sortNo 1,
+ * @prop {string} createUser null,
+ * @prop {string} createTime null,
+ * @prop {string} updateUser "de5f04fe-df6c-4fba-b463-53291d7e6dcf_11",
+ * @prop {string} updateTime null,
+ * @prop {string} cameraPosition "{\"x\":14.972237904780949,\"y\":1.7468047329411809,\"z\":0.17540053481894813}",
+ * @prop {string} cameraRotation "{\"roughness\":0.8,\"focal\":200}",
+ * @prop {string} configType 0,
+ * @prop {string} size null
  */

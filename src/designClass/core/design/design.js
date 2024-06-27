@@ -178,24 +178,30 @@ export class DesignHandle {
    * */
   @updateMesh()
   visible() {
+    let resultVisible = !this.node.visible();
     switch (this.type) {
       case DESIGN_TYPE.backgroundImage:
       case DESIGN_TYPE.backgroundColor:
         this.$template.viewList.forEach((view) => {
           view.canvas.backgroundGroup.children.forEach((node) => {
-            node.visible(!node.visible());
-            if (node === view.canvas.transformer.node()) view.setActiveNull();
+            node.visible(resultVisible);
+            if (node === view.canvas.transformer.node()) {
+              view.setActiveNull();
+            }
           });
         });
         break;
       case DESIGN_TYPE.image:
       case DESIGN_TYPE.text:
-        this.node.visible(!this.node.visible());
+        this.node.visible(resultVisible);
         if (this.node === this.$view.canvas.transformer.node()) {
           this.$view.setActiveNull();
         }
         break;
     }
+    this.tileClass?.node?.visible(resultVisible);
+    // 触发视图刷新
+    this.$view.designList.splice();
   }
 
   /**
@@ -512,5 +518,13 @@ export class DesignHandle {
    */
   updateMesh(opt = {}) {
     this.$view.updateMesh(opt);
+  }
+
+  /**
+   * 销毁
+   */
+  destroy() {
+    this.node.destroy();
+    this.node = null;
   }
 }

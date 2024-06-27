@@ -18,12 +18,14 @@ import { createLineLayer } from '@/designClass/util/view/createLineLayer';
  * @param {HTMLElement} opt.container 容器
  * @param {ViewPrintInfo} opt.viewInfo 视图信息
  * @param {DesignerApp} opt.$app
+ * @param {Template} opt.$template
  * @param {View} opt.$view
  */
 export function createCanvas(opt) {
   const viewInfo = opt.viewInfo;
   const container = opt.container;
   const $app = opt.$app;
+  const $template = opt.$template;
   const $view = opt.$view;
 
   // 舞台
@@ -97,7 +99,7 @@ export function createCanvas(opt) {
   transformer.moveToTop();
 
   // 车线层
-  const pathLayer = createPathLayer(viewInfo);
+  const pathLayer = createPathLayer(viewInfo, $template, this);
   stage.add(pathLayer);
 
   // 辅助线层

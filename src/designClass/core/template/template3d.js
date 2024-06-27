@@ -81,7 +81,7 @@ export class Template3d {
    * 更新材质
    */
   updateMesh() {
-    this.$template.viewList.forEach((view) => view.updateMesh());
+    this.$template?.viewList?.forEach((view) => view.updateMesh());
   }
 
   /**
@@ -112,10 +112,10 @@ export class Template3d {
   }
 
   /**
-   * 销毁3d - 模型 & 鼠标事件 & 材质
+   * 休眠
    */
-  destroy() {
-    this.meshList.forEach((item) => {
+  sleep() {
+    this.meshList?.forEach((item) => {
       item.mesh.material.map?.dispose();
       item.mesh.material.map = null;
       item.mesh = null;
@@ -127,6 +127,37 @@ export class Template3d {
     this.raycaster?.destroy();
     // 销毁点击事件(切换模式)
     this.destroyMouse && this.destroyMouse();
+    this.destroyMouse = null;
+    this.three = null;
+    this.raycaster = null;
+  }
+
+  /**
+   * 销毁3d - 模型 & 鼠标事件 & 材质
+   */
+  destroy() {
+    this.meshList?.forEach((item) => {
+      item.mesh.material.map?.dispose();
+      item.mesh.material.map = null;
+      item.mesh = null;
+    });
+    this.meshList = [];
+    // 销毁模型
+    this.three?.destroy();
+    // 销毁射线
+    this.raycaster?.destroy();
+    // 销毁点击事件(切换模式)
+    this.destroyMouse && this.destroyMouse();
+
+    this.$app = null;
+    this.$template = null;
+    this.three = null;
+    this.loading = false;
+    this.raycaster = null;
+    this.meshList = null;
+    this.cameraPositionList = null;
+    this.mouseDownPos = null;
+    this.destroyMouse = null;
   }
 
   /**

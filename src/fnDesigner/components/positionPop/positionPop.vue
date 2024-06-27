@@ -121,6 +121,7 @@ watch(
  * @param {string} type 尺寸类型 width | height
  */
 async function onSize(e, type) {
+  await $app.value.isActiveDesignMsg();
   if (!activeImage.value) return;
   const view = $app.value.activeView;
   const result = activeImage.value;
@@ -152,6 +153,7 @@ async function onSize(e, type) {
  * 手动输入位置
  */
 async function onPosition() {
+  await $app.value.isActiveDesignMsg();
   if (!activeImage.value) return;
   const curImage = activeImage.value.design.node.attrs;
   const scaleX = Math.abs(curImage.scaleX);
@@ -176,6 +178,7 @@ async function onPosition() {
  * @param {string} type 对齐类型
  * */
 async function handlerAlign(type) {
+  await $app.value.isActiveDesignMsg();
   if (!activeImage.value) return;
   const view = $app.value.activeView;
 

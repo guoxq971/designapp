@@ -18,6 +18,8 @@ export class Template {
 
   /**@type {string} 模板尺码*/
   size;
+  /**@type {string} 模板尺码类型*/
+  sizeType;
 
   /**@type {TemplateDetail|null} 模板详情*/
   detail;
@@ -34,10 +36,11 @@ export class Template {
   /**@type {TemplateExport} 导出按钮的配置*/
   templateExport;
 
-  /**@type {array} 点击渲染后端返回的多角度*/
-  renderMultiList = [];
   /**@type {RenderMulti[]} 多角度列表*/
   multiList = [];
+
+  /**@type {templateDormancyData} 休眠数据*/
+  sleepData;
 
   /**
    * @prop {Config3d} config3d 3d配置
@@ -47,11 +50,13 @@ export class Template {
   constructor(config, detail, $app) {
     this.$app = $app;
     // 模板详情
-    this.detail = detail;
+    this.detail = Object.freeze(detail);
     // 模板3d配置
-    this.config3d = config;
+    this.config3d = Object.freeze(config);
     // 模板尺码
     this.size = this.config3d.size || '';
+    // 模板尺码类型
+    this.sizeType = this.config3d.sizeType || '';
     // 模板设计类型
     this.type = this.size ? TEMPLATE_DESIGN_TYPE.refine : TEMPLATE_DESIGN_TYPE.common;
     // 模板3d
@@ -59,21 +64,22 @@ export class Template {
     // 模板导出
     this.templateExport = new TemplateExport($app, this);
     // 多角度列表
-    this.getMultiList();
+    this.initMultiList();
     // 初始化视图列表
     this.initViewList();
   }
 
   /**
-   * 解析详情获取多角度列表
+   * 解析详情获取多角度列表(初始化)
    */
-  getMultiList() {
+  initMultiList() {
+    if (!this.detail) return;
     /**@type RenderMulti[]*/
     let result = [];
     // 2d
-    const appearance = this.detail.appearances.find((e) => e.id == this.$app.activeColorId);
+    const appearance = this.detail.appearances.find((e) => e.id == (this.$app.activeColorId || this.detail.appearances[0].id));
     if (appearance) {
-      result = getMultiList(appearance, this.renderMultiList);
+      result = getMultiList(appearance, []);
     }
 
     // 3d
@@ -115,14 +121,16 @@ export class Template {
       // console.log('渲染多角度 param', param);
       await DRequest(`/designer-web/CMDesignAct/realTimeCutMulti2.act?mediaType=json`, METHOD.POST, param, { timeout: 3 * 60 * 1000 }).then((res) => {
         if (res.data.retState !== '0') return;
-        this.renderMultiList = res.data.cutList;
         // 重新解析多角度列表
         const appearance = this.detail.appearances.find((e) => e.id == this.$app.activeColorId);
         if (appearance) {
-          const result = getMultiList(appearance, this.renderMultiList);
+          const result = getMultiList(appearance, res.data.cutList);
           this.multiList.forEach((item) => {
-            if (item.id === result.id) {
-              item.designImg = result.designImg;
+            const d = result.find((e) => e.id === item.id);
+            if (d) {
+              item.designImg = d.designImg;
+              item.prodImg = d.prodImg;
+              item.bgImg = d.bgImg;
             }
           });
         }
@@ -134,9 +142,11 @@ export class Template {
 
   /**
    * 获取所有设计
+   * @private
    */
   getAllDesignData() {
     const list = this.viewList.map((view) => view.getDesignData());
+    // 如果是背景图|背景色，只保留第一个
     if (list.length && list[0].length && [DESIGN_TYPE.backgroundImage, DESIGN_TYPE.backgroundColor].includes(list[0][0].type)) {
       list.forEach((item, index) => {
         if (index !== 0) {
@@ -231,5 +241,54 @@ export class Template {
     for (const view of this.viewList) {
       view.clearDesign();
     }
+  }
+
+  /**
+   * 是否有设计
+   * @returns {boolean} 是否有设计
+   */
+  isDesign() {
+    return (
+      this.viewList.some((view) => view?.designList.some((design) => design?.node?.attrs.visible)) ||
+      this.sleepData?.viewInfoList.some((viewInfo) => viewInfo?.designInfoList.some((designInfo) => designInfo.visible))
+    );
+  }
+
+  /**
+   * 休眠 - 保留设计数据,清空3d数据,清空2d数据,清空多角度数据
+   */
+  sleep() {
+    this.sleepData = {
+      viewInfoList: [],
+    };
+    // 保留设计数据
+    this.sleepData.viewInfoList = this.viewList.map((e) => {
+      return {
+        id: e.id,
+        designInfoList: Object.freeze(e.getDesignData()),
+      };
+    });
+
+    // 清空3d数据
+    this.template3d.sleep();
+    // 清空2d数据
+    this.viewList.forEach((view) => view.destroy());
+    // 清空多角度数据
+    this.multiList.forEach((multi) => multi.templateCamera3d?.destroy());
+  }
+
+  /**
+   * 激活休眠数据
+   */
+  activeSleep() {
+    if (!this.sleepData) return;
+    setTimeout(() => {
+      this.sleepData.viewInfoList.forEach((item) => {
+        const view = this.viewList.find((e) => e.id === item.id);
+        if (view) {
+          view.setDormancyDesignData(item.designInfoList);
+        }
+      });
+    });
   }
 }

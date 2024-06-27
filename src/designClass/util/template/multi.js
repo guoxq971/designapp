@@ -31,6 +31,7 @@ export function getMultiList(appearance, renderMultiList = []) {
       bgImg: item.image,
       designImg: null,
       prodImg: null,
+      multiItem: item,
     };
     if (composeId) {
       // 复杂

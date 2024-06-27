@@ -37,6 +37,8 @@ export class ViewDetail {
 
 // 视图的 print、printout 数据
 export class ViewPrintInfo {
+  uvD;
+  uvV;
   width;
   height;
   offsetX;

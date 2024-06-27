@@ -146,9 +146,46 @@ export class Raycaster {
     this.container.removeEventListener('mousemove', this.addEventObj.onMouseMove);
     this.container.removeEventListener('mouseup', this.addEventObj.onMouseUp);
 
+    if (this.meshList && this.meshList?.length) {
+      this.meshList.forEach((item) => {
+        // item.dispose();
+        item = null;
+      });
+      this.meshList = [];
+    }
+
     this.raycaster = null;
     this.mouse = null;
     this.activeMesh = null;
+    this.container = null;
+    this.scene = null;
+    this.camera = null;
+    this.controls = null;
+    this.isSameClick = null;
+    this.isDown = null;
+    this.addEventObj = null;
+
+    this.raycaster = null;
+    this.mouse = null;
+    this.activeMesh = null;
+    this.beforeMouseMove = null;
+    this.beforeMouseUp = null;
+    this.beforeMouseDown = null;
+    this.afterMouseDown = null;
+    this.afterMouseMove = null;
+    this.afterMouseUp = null;
+    this.setPos = null;
+    this.getMeshList = null;
+    this.meshList = null;
+    this.setStatusDown = null;
+    this.setStatusUp = null;
+    this.raycaster = null;
+    this.mouse = null;
+    this.container = null;
+    this.camera = null;
+    this.controls = null;
+    this.addEventObj = null;
+    this.container = null;
   }
 
   /**

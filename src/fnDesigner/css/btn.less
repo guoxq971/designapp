@@ -1,0 +1,43 @@
+.btn {
+  user-select: none;
+  width: 4.8rem;
+  height: 3.2rem;
+  font-size: 1.4rem;
+  position: relative;
+  cursor: pointer;
+  border-radius: 0.3rem;
+  border: 0.1rem solid #dcdfe6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  > svg {
+    color: #7e7e7e;
+  }
+
+  &:hover {
+    background-color: #fff0e9;
+    color: var(--fn-primary-color);
+    border-color: var(--fn-primary-color);
+    > svg {
+      color: var(--fn-primary-color);
+    }
+  }
+}
+.active {
+  background-color: #fff0e9;
+  color: var(--fn-primary-color);
+  border-color: var(--fn-primary-color);
+  > svg {
+    color: var(--fn-primary-color);
+  }
+}
+
+.primary {
+  border-color: var(--fn-primary-color);
+  background-color: var(--fn-primary-color);
+  color: #fff;
+  &:hover {
+    color: #fff;
+    background-color: #fd894d;
+  }
+}
