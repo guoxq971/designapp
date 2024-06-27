@@ -9,14 +9,14 @@
       <el-popover placement="bottom" width="905" trigger="click">
         <template slot="reference">
           <!--@click="onClick"-->
-          <el-button type="primary" size="mini" class="btn">
+          <el-button type="primary" size="mini" class="btn" @click="showCalculator = true">
             产品毛利
             <span class="el-icon-arrow-down" />
           </el-button>
         </template>
 
         <!--毛利计算器-->
-        <!--<grossProfitCalculator v-if="showCalculator" :detail="c_detail" :isShowDel="false" />-->
+        <grossProfitCalculator v-if="showCalculator" :detail="{ templateId: da.activeTemplate.detail.seqId }" :isShowDel="false" />
       </el-popover>
 
       <!--icon-->
@@ -40,11 +40,15 @@
 
 <script setup>
 import { PRODUCT_SPECIAL_TYPE_0, PRODUCT_SPECIAL_TYPE_1 } from '@/fnDesigner/config/common';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { getHeaderObj } from '@/fnDesigner/views/appCenter/components/price/util';
 import PriceCardPriceTable from '@/fnDesigner/views/appCenter/components/price/priceCardPriceTable.vue';
 import { designStoreToRefs } from '@/designClass/store';
+import GrossProfitCalculator from '@/fnDesigner/views/appCenter/components/price/grossProfitCalculator.vue';
 const da = designStoreToRefs();
+
+// 计算器
+const showCalculator = ref(false);
 
 // 宽度
 const width = computed(() => {

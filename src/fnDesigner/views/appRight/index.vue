@@ -6,6 +6,8 @@
     <otherPop v-show="$app.otherSettingVisible" />
     <!--定位-浮动弹窗-->
     <positionPop v-show="$app.positionPopVisible" />
+    <!--历史记录-浮动弹窗-->
+    <historyPop v-show="$app.historyVisible" />
 
     <div class="btn-group fn-mb-gap-min big-group">
       <!--说明-->
@@ -27,7 +29,7 @@
         </el-dropdown-menu>
       </el-dropdown>
       <div class="btn">
-        <historySvg />
+        <historySvg @click.native="onHistory" />
       </div>
       <div class="btn btn-big">保存模板</div>
       <el-popover placement="bottom" width="80" trigger="click" popper-class="pop-btn-group-save">
@@ -148,6 +150,7 @@ export default {
 };
 </script>
 <script setup>
+import historyPop from '@/fnDesigner/components/historyPop.vue';
 import { RIGHT_WIDTH_UNIT } from '@/fnDesigner/config/common';
 import hoverTile from '@/fnDesigner/views/appRight/components/hover-tile.vue';
 import designList from '../../components/designList.vue';
@@ -189,9 +192,13 @@ const $app = designStoreToRefs();
 
 const rightWidthUnit = ref(RIGHT_WIDTH_UNIT);
 
+// 历史记录
+function onHistory() {
+  $app.value.historyVisible = !$app.value.historyVisible;
+}
 // 其他设置
 function onOtherSetting() {
-  $app.value.otherSettingVisible = true;
+  $app.value.otherSettingVisible = !$app.value.otherSettingVisible;
 }
 
 // 全颜色合成

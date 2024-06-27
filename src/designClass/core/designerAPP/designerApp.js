@@ -53,6 +53,10 @@ export class DesignerApp {
   /**@type {string} 特殊价格|特殊尺码*/
   specialType = '';
 
+  /**@type {boolean} psd推荐开关*/
+  RecommendVisible = false;
+  /**@type {boolean} 历史记录开关*/
+  historyVisible = false;
   /**@type {boolean} 右键菜单开关*/
   menuVisible = false;
 
@@ -113,6 +117,14 @@ export class DesignerApp {
     }
     return result;
   });
+
+  // 推荐参数弹窗
+  visibleRecommend() {
+    this.RecommendVisible = true;
+    setTimeout(() => {
+      this.RecommendVisible = false;
+    }, 3 * 1000);
+  }
 
   /**
    * 设置模式-预览
@@ -294,6 +306,9 @@ export class DesignerApp {
     if (!template.templateExport.isRequest) {
       template.templateExport.getConfigApi();
     }
+
+    // 提示推荐参数
+    this.visibleRecommend();
 
     // 加载2d
     setTimeout(() => {
